@@ -1,0 +1,70 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define QUEUE_SIZE 5
+
+int item, front = 0, rear = -1, count = 0, q[QUEUE_SIZE];
+
+void insert_rear() {
+    if (count == QUEUE_SIZE) {
+        printf("Queue overflow\n");
+        return;
+    }
+    rear = (rear + 1) % QUEUE_SIZE;
+    q[rear] = item;
+    count++;
+}
+
+void delete_front() {
+    int deleted_item;
+    if (count == 0) {
+        printf("Queue is empty\n");
+        return;
+    }
+    deleted_item = q[front];
+    printf("The item deleted is %d\n", deleted_item);
+    front = (front + 1) % QUEUE_SIZE;
+    count--;
+}
+
+void display() {
+    int i, f;
+    if (count == 0) {
+        printf("Queue is empty\n");
+        return;
+    }
+    printf("The contents of the queue are:\n");
+    for (i = 1, f = front; i <= count; i++) {
+        printf("%d\n", q[f]);
+        f = (f + 1) % QUEUE_SIZE;
+    }
+}
+
+int main() {
+    int choice;
+    while (1) {
+        printf("\n1: Insert at rear\n2: Delete from front\n");
+        printf("3: Display\n4: Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("Enter the item to be inserted: ");
+                scanf("%d", &item);
+                insert_rear();
+                break;
+            case 2:
+                delete_front();
+                break;
+            case 3:
+                display();
+                break;
+            case 4:
+                exit(0);
+            default:
+                printf("Invalid choice\n");
+        }
+    }
+    return 0;
+}
