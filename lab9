@@ -1,0 +1,192 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+struct node {
+    int cf;     // Coefficient
+    int px;     // Power of x
+    int py;     // Power of y
+    int pz;     // Power of z
+    struct node *link;
+};
+
+typedef struct node* NODE;
+
+// Function to display the polynomial
+void display(NODE head) {
+    NODE cur;
+    if (head->link == head) {
+        printf("Polynomial does not exist\n");
+        return;
+    }
+    cur = head->link;
+    while (cur != head) {
+        if (cur->cf > 0)
+            printf("+");
+        printf("%d", cur->cf);
+        printf("x^%d", cur->px);
+        printf("y^%d", cur->py);
+        printf("z^%d ", cur->pz);
+        cur = cur->link;
+    }
+    printf("\n");
+}
+
+// Function to insert a term at the rear of the circular linked list
+NODE insert_rear(int cf, int px, int py, int pz, NODE head) {
+    NODE temp, cur;
+    temp = (NODE)malloc(sizeof(struct node));
+    temp->cf = cf;
+    temp->px = px;
+    temp->py = py;
+    temp->pz = pz;
+    temp->link = NULL;
+
+    if (head->link == head) { // Empty list
+        head->link = temp;
+        temp->link = head;
+    } else {
+        cur = head->link;
+        while (cur->link != head) {
+            cur = cur->link;
+        }
+        cur->link = temp;
+        temp->link = head;
+    }
+    return head;
+}
+
+// Function to read polynomial terms from user
+NODE readpoly(NODE head) {
+    int n, i, cf, px, py, pz;
+    printf("Enter the number of terms: ");
+    scanf("%d", &n);
+    for (i = 1; i <= n; i++) {
+        printf("Enter coefficient of term %d: ", i);
+        scanf("%d", &cf);
+        printf("Enter power of x of term %d: ", i);
+        scanf("%d", &px);
+        printf("Enter power of y of term %d: ", i);
+        scanf("%d", &py);
+        printf("Enter power of z of term %d: ", i);
+        scanf("%d", &pz);
+        head = insert_rear(cf, px, py, pz, head);
+    }
+    return head;
+}
+
+// Function to evaluate the polynomial for given x, y, z values
+void evaluate(NODE head) {
+    NODE cur;
+    int x, y, z;
+    double result = 0.0;  // Use double for floating-point
+
+    if (head->link == head) {
+        printf("Polynomial does not exist\n");
+        return;
+    }
+    printf("Enter the value of x: ");
+    scanf("%d", &x);
+    printf("Enter the value of y: ");
+    scanf("%d", &y);
+    printf("Enter the value of z: ");
+    scanf("%d", &z);
+
+    cur = head->link;
+    while (cur != head) {
+        result += cur->cf * pow(x, cur->px) * pow(y, cur->py) * pow(z, cur->pz);
+        cur = cur->link;
+    }
+    printf("The result of evaluation is %.2lf\n", result);
+}
+
+// Function to add two polynomials h1 and h2 and store the result in h3
+NODE addpoly(NODE h1, NODE h2, NODE h3) {
+    int sumcf;
+    NODE p1, p2;
+    p1 = h1->link;
+    p2 = h2->link;
+
+    while (p1 != h1 && p2 != h2) {
+        if (p1->px > p2->px) {
+            h3 = insert_rear(p1->cf, p1->px, p1->py, p1->pz, h3);
+            p1 = p1->link;
+        }
+        else if (p1->px < p2->px) {
+            h3 = insert_rear(p2->cf, p2->px, p2->py, p2->pz, h3);
+            p2 = p2->link;
+        }
+        else { // px equal
+            if (p1->py > p2->py) {
+                h3 = insert_rear(p1->cf, p1->px, p1->py, p1->pz, h3);
+                p1 = p1->link;
+            }
+            else if (p1->py < p2->py) {
+                h3 = insert_rear(p2->cf, p2->px, p2->py, p2->pz, h3);
+                p2 = p2->link;
+            }
+            else { // py equal
+                if (p1->pz > p2->pz) {
+                    h3 = insert_rear(p1->cf, p1->px, p1->py, p1->pz, h3);
+                    p1 = p1->link;
+                }
+                else if (p1->pz < p2->pz) {
+                    h3 = insert_rear(p2->cf, p2->px, p2->py, p2->pz, h3);
+                    p2 = p2->link;
+                }
+                else { // All powers equal
+                    sumcf = p1->cf + p2->cf;
+                    if (sumcf != 0)
+                        h3 = insert_rear(sumcf, p1->px, p1->py, p1->pz, h3);
+                    p1 = p1->link;
+                    p2 = p2->link;
+                }
+            }
+        }
+    }
+
+    // Copy remaining terms if any
+    while (p1 != h1) {
+        h3 = insert_rear(p1->cf, p1->px, p1->py, p1->pz, h3);
+        p1 = p1->link;
+    }
+    while (p2 != h2) {
+        h3 = insert_rear(p2->cf, p2->px, p2->py, p2->pz, h3);
+        p2 = p2->link;
+    }
+
+    return h3;
+}
+
+int main() {
+    NODE h1, h2, h3;
+    h1 = (NODE)malloc(sizeof(struct node));
+    h2 = (NODE)malloc(sizeof(struct node));
+    h3 = (NODE)malloc(sizeof(struct node));
+
+    // Initialize circular lists with head pointing to self
+    h1->link = h1;
+    h2->link = h2;
+    h3->link = h3;
+
+    printf("Enter the first polynomial:\n");
+    h1 = readpoly(h1);
+
+    printf("Enter the second polynomial:\n");
+    h2 = readpoly(h2);
+
+    h3 = addpoly(h1, h2, h3);
+
+    printf("The first polynomial is:\n");
+    display(h1);
+
+    printf("The second polynomial is:\n");
+    display(h2);
+
+    printf("Their sum is:\n");
+    display(h3);
+
+    evaluate(h1);
+
+    return 0;
+}
