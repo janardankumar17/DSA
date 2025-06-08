@@ -1,0 +1,133 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int count = 0;
+
+struct node {
+    int sem, phno;
+    char name[20], branch[10], usn[20];
+    struct node *next;
+} *first = NULL, *last = NULL, *temp = NULL, *temp1;
+
+void create() {
+    int sem, phno;
+    char name[20], branch[10], usn[20];
+    temp = (struct node*)malloc(sizeof(struct node));
+    printf("\nEnter USN, Name, Branch, Sem, Phno: ");
+    scanf("%s %s %s %d %d", usn, name, branch, &sem, &phno);
+    strcpy(temp->usn, usn);
+    strcpy(temp->name, name);
+    strcpy(temp->branch, branch);
+    temp->sem = sem;
+    temp->phno = phno;
+    temp->next = NULL;
+    count++;
+}
+
+void insert_atfirst() {
+    create();
+    if (first == NULL) {
+        first = temp;
+        last = temp;
+    } else {
+        temp->next = first;
+        first = temp;
+    }
+}
+
+void insert_atlast() {
+    create();
+    if (first == NULL) {
+        first = temp;
+        last = temp;
+    } else {
+        last->next = temp;
+        last = temp;
+    }
+}
+
+void display() {
+    temp1 = first;
+    if (temp1 == NULL) {
+        printf("List is empty\n");
+        return;
+    }
+    printf("\nStudent List:\n");
+    while (temp1 != NULL) {
+        printf("%s %s %s %d %d\n", temp1->usn, temp1->name, temp1->branch, temp1->sem, temp1->phno);
+        temp1 = temp1->next;
+    }
+    printf("Total Students: %d\n", count);
+}
+
+int deleteend() {
+    struct node *temp = first;
+    if (first == NULL) {
+        printf("List is already empty!\n");
+        return 0;
+    }
+    if (first->next == NULL) {
+        printf("Deleted: %s %s %s %d %d\n", first->usn, first->name, first->branch, first->sem, first->phno);
+        free(first);
+        first = last = NULL;
+    } else {
+        while (temp->next != last) {
+            temp = temp->next;
+        }
+        printf("Deleted: %s %s %s %d %d\n", last->usn, last->name, last->branch, last->sem, last->phno);
+        free(last);
+        temp->next = NULL;
+        last = temp;
+    }
+    count--;
+    return 0;
+}
+
+int deletefront() {
+    struct node *temp = first;
+    if (first == NULL) {
+        printf("List is already empty!\n");
+        return 0;
+    }
+    printf("Deleted: %s %s %s %d %d\n", temp->usn, temp->name, temp->branch, temp->sem, temp->phno);
+    first = first->next;
+    free(temp);
+    if (first == NULL) last = NULL;
+    count--;
+    return 0;
+}
+
+int main() {
+    int ch, n, i;
+    while (1) {
+        printf("\n----------------- MENU -----------------\n");
+        printf("1. Create list with N students\n");
+        printf("2. Display\n");
+        printf("3. Insert at end\n");
+        printf("4. Delete from end\n");
+        printf("5. Insert at beginning\n");
+        printf("6. Delete from beginning\n");
+        printf("7. Exit\n");
+        printf("----------------------------------------\n");
+        printf("Enter choice: ");
+        scanf("%d", &ch);
+
+        switch (ch) {
+            case 1:
+                printf("Enter number of students: ");
+                scanf("%d", &n);
+                for (i = 0; i < n; i++)
+                    insert_atfirst();
+                break;
+            case 2: display(); break;
+            case 3: insert_atlast(); break;
+            case 4: deleteend(); break;
+            case 5: insert_atfirst(); break;
+            case 6: deletefront(); break;
+            case 7: exit(0);
+            default: printf("Invalid choice!\n");
+        }
+    }
+    return 0;
+}
