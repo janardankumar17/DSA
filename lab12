@@ -1,0 +1,107 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAXADDR 100
+
+struct employee {
+    int empid;
+    int age;
+    char name[20];
+} ht[MAXADDR];
+
+int hash(int key) {
+    return key % MAXADDR;
+}
+
+int main() {
+    int i, choice, count = 0, key, age, index;
+    char name[20];
+
+    for (i = 0; i < MAXADDR; i++) {
+        ht[i].empid = -1;
+    }
+
+    while (1) {
+        printf("1. Insert Record  2. Search Record  3. Exit\n");
+        printf("Enter your choice\n");
+        scanf("%d", &choice);
+        getchar(); // to consume newline left by scanf
+
+        switch (choice) {
+            case 1:
+                if (count == MAXADDR) {
+                    printf("No Space Available\n");
+                } else {
+                    printf("Enter the 4-digit unique key for employee\n");
+                    scanf("%d", &key);
+                    getchar();
+                    printf("Enter the Employee name\n");
+                    fgets(name, sizeof(name), stdin);
+                    name[strcspn(name, "\n")] = '\0';
+                    printf("Enter the age\n");
+                    scanf("%d", &age);
+                    index = hash(key);
+
+                    if (ht[index].empid == -1) {
+                        ht[index].empid = key;
+                        strcpy(ht[index].name, name);
+                        ht[index].age = age;
+                        count++;
+                    } else {
+                        for (i = 1; i < MAXADDR; i++) {
+                            index = (hash(key) + i) % MAXADDR;
+                            if (ht[index].empid == -1) {
+                                ht[index].empid = key;
+                                strcpy(ht[index].name, name);
+                                ht[index].age = age;
+                                count++;
+                                break;
+                            }
+                        }
+                    }
+                }
+                break;
+
+            case 2:
+                printf("Enter the 4-digit unique key of employee to search\n");
+                scanf("%d", &key);
+                index = hash(key);
+
+                if (ht[index].empid == key) {
+                    printf("Successful Search\n");
+                    printf("Name = %s\n", ht[index].name);
+                    printf("Age = %d\n", ht[index].age);
+                } else if (ht[index].empid == -1) {
+                    printf("Unsuccessful Search\n");
+                    printf("Key not found\n");
+                } else {
+                    int found = 0;
+                    for (i = 1; i < MAXADDR; i++) {
+                        index = (hash(key) + i) % MAXADDR;
+                        if (ht[index].empid == key) {
+                            printf("Successful Search\n");
+                            printf("Name = %s\n", ht[index].name);
+                            printf("Age = %d\n", ht[index].age);
+                            found = 1;
+                            break;
+                        } else if (ht[index].empid == -1) {
+                            printf("Unsuccessful Search\n");
+                            printf("Key not found\n");
+                            found = 1;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        printf("Unsuccessful Search\n");
+                        printf("Key not found\n");
+                    }
+                }
+                break;
+
+            default:
+                exit(0);
+        }
+    }
+    return 0;
+}
